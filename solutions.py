@@ -1,5 +1,6 @@
 # python -c 'from solutions import *; day1()'
 
+import copy
 import string
 
 def day1():
@@ -179,3 +180,66 @@ def day4():
             partially_overlap += 1
 
     print(f"{partially_overlap=}")
+
+
+def day5():
+    # with open('./input-5.txt', 'r') as f:
+    #     stacks = [line.rstrip() for line in f]
+    
+    with open('./input-5-moves.txt', 'r') as f:
+        move_strings = [line.rstrip() for line in f]
+    
+    # recreate stacks - structure is list of lists, where the nested list is an individual stack; stack 1 -> list[0]
+    # you know what, its actually faster to just type these
+    stacks = []
+    stacks.append("Hacky offset")
+    stacks.append(list("RGHQSBTN"))
+    stacks.append(list("HSFDPZJ"))
+    stacks.append(list("ZHV"))
+    stacks.append(list("MZJFGH"))
+    stacks.append(list("TZCDLMSR"))
+    stacks.append(list("MTWVHZJ"))
+    stacks.append(list("TFPLZ"))
+    stacks.append(list("QVWS"))
+    stacks.append(list("WHLMTDNC"))
+
+    # parse moves as tuple (quantity, from_stack, to_stack)
+    moves = []
+    for m in move_strings:
+        moves.append(tuple(int(i) for i in m.split() if i.isdigit()))
+    
+    stacks_part1 = copy.deepcopy(stacks)
+    # stacks_part2 = copy.deepcopy(stacks)
+
+    for m in moves:
+        accum = []
+        for i in range(0,m[0]):
+            accum += stacks_part1[m[1]].pop()
+        stacks_part1[m[2]] += accum
+    
+    # part 1: item at top of each stack as a string
+    top = ""
+    for s in stacks_part1[1:]:
+        top += s[-1]
+    
+    print(f"{top=}")
+
+    # part 2: multiple crates move at once. don't pop, take an end slice and move it. or do the same thing as part 1 but reverse accum, whatever.
+    for m in moves:
+        # this looks like shit because i thought i had a bug, when it turns out i fatfingered an input
+        accum = ""
+        accum = copy.deepcopy(stacks[m[1]][-1 * m[0]:])
+        stacks[m[2]] += accum
+        for i in range(0,m[0]):
+            stacks[m[1]].pop()
+        # print(m, accum, accum[::-1])
+        # stacks[m[2]] += list(accum[::-1])
+        
+        for s in stacks:
+             print(s)
+
+    top = ""
+    for s in stacks[1:]:
+        top += s.pop()
+    
+    print(f"{top=}")
