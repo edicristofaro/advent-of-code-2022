@@ -243,3 +243,21 @@ def day5():
         top += s.pop()
     
     print(f"{top=}")
+
+
+def day6():
+    with open('./input-6.txt', 'r') as f:
+        signal = f.readline()
+    
+    def head_index_of_unique_window(signal, window):
+        for i in range(4, len(signal)):
+            if len(set(signal[i-window:i])) == window:
+                return(i)
+        
+        return(-1)
+
+    # part 1: yield the head character number of the signal when the first unique 4 character segment appears
+    print(f"{head_index_of_unique_window(signal, 4)=}")
+    
+    # part 2: same thing, but 14 characters
+    print(f"{head_index_of_unique_window(signal, 14)=}")
