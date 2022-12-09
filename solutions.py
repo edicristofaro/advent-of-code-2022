@@ -3,6 +3,8 @@
 import copy
 import string
 
+from collections import OrderedDict
+
 def day1():
     infile = open("./input-1-1.txt", "r")
     lines = infile.readlines()
@@ -15,7 +17,7 @@ def day1():
 
     for l in lines:
         l = l.strip()
-        if l is not '':
+        if l != '':
             items += 1
             calories += int(l)
         else:
@@ -261,3 +263,85 @@ def day6():
     
     # part 2: same thing, but 14 characters
     print(f"{head_index_of_unique_window(signal, 14)=}")
+
+
+def day7():
+    # got super hacky with this 
+    
+    def nested_get(dic, keys):    
+        for key in keys:
+            dic = dic[key]
+        return dic
+
+    def nested_set(dic, keys, value):
+        for key in keys[:-1]:
+            dic = dic.setdefault(key, {})
+        dic[keys[-1]] = value
+
+
+    with open("input-7.txt", "r") as f:
+        commands = f.readlines()
+
+    commands = [c.strip() for c in commands]
+
+    tree = {"/": {}}
+    current_path = ["/"]
+
+    i = 0
+    for c in commands:
+        i += 1
+        cmd = c.split()
+        print(cmd)
+        if cmd[0] == "$":
+            match cmd[1]:
+                case "cd":
+                    if cmd[2] == "/":
+                        current_path = ["/"]
+                    elif cmd[2] == "..":
+                        current_path.pop()
+                    else:
+                        print(f"{cmd[2]=}")
+                        current_path += [cmd[2]]
+                        nested_set(tree, current_path, {})
+                case "ls":
+                    continue
+        elif cmd[0] == "dir":
+            nested_set(tree, current_path + [cmd[1]], {})
+        else: # treat the command as a file instead
+            insert_into = current_path + [cmd[1]]
+            print(f"{insert_into=}")
+            nested_set(tree, insert_into, cmd[0])
+        #if i > 100:
+        #    break
+
+    print(tree)
+
+    global global_accum
+    global_accum = []
+
+    def size_of_dirtree(dirtree, threshold):
+        global global_accum
+        accum = 0
+        for k, v in dirtree.items():
+            if isinstance(v, dict):
+                # print(f"Nested dict item {k=} {v=}")
+                accum += size_of_dirtree(v, threshold)
+            else:
+                # print(f"File item {k=} {v=}")
+                accum += int(v)
+        
+        # modify this for part 1 vs part 2
+        if accum >= threshold:
+            print(f"{dirtree=} {accum=}")
+            global_accum.append(accum)
+        
+        return accum
+    
+    # part 1: print sum of directory sizes where the directory is <= 100000
+    print(size_of_dirtree(tree, 100000))
+    print(global_accum) 
+    # turns out this debugging check was useful as an input to part 2
+
+    # part 2: print smallest dir that deleting would free enough space to install 30 000 000 update (disk is 70 000 000, use part 1 checksum to determine used space)
+    print(size_of_dirtree(tree, 1609574)) # 1609574 is the amount of space we need to free
+    print(min(global_accum))
