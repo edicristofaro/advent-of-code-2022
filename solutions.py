@@ -555,3 +555,62 @@ def day9():
                     tail_points.append(rope_points[-1])
     
     print(len(set(tail_points)))
+
+
+def day10():
+    with open("input10.txt","r") as f:
+        lines = f.readlines()
+    
+    steps = [l.strip().split() for l in lines][::-1]
+
+    interesting_cycles = [20, 60, 100, 140, 180, 220]
+    interesting_values = []
+    X = 1
+    instr = None
+    val = None
+
+    for cycle in range(1,max(interesting_cycles)+1):
+        if cycle in interesting_cycles:
+            interesting_values.append(X * cycle)
+        if instr is None:
+            instr = steps.pop()
+        if instr[0] == "noop":
+            instr = None
+        elif instr[0] == "addx" and val is None:
+            val = int(instr[1])
+        else:
+            X += val
+            instr = None
+            val = None
+
+    # part 1
+    print(sum(interesting_values))
+
+    # part 2
+    steps = [l.strip().split() for l in lines][::-1]
+    columns = [40, 80, 120, 160, 200, 240]
+    X = 1
+    instr = None
+    val = None
+
+    for cycle in range(0,max(columns)):
+        sprite = list(range(X-1,X+2))
+        if (cycle) % 40 in sprite:
+            print("#", end="")
+        else:
+            print(".", end="")
+        if cycle + 1 in columns:
+            print("\n".rstrip())
+        if instr is None:
+            instr = steps.pop()
+        if instr[0] == "noop":
+            instr = None
+        elif instr[0] == "addx" and val is None:
+            val = int(instr[1])
+        else:
+            X += val
+            instr = None
+            val = None
+
+
+
