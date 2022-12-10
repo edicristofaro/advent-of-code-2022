@@ -267,7 +267,7 @@ def day6():
 
 def day7():
     # got super hacky with this 
-    
+
     def nested_get(dic, keys):    
         for key in keys:
             dic = dic[key]
@@ -345,3 +345,213 @@ def day7():
     # part 2: print smallest dir that deleting would free enough space to install 30 000 000 update (disk is 70 000 000, use part 1 checksum to determine used space)
     print(size_of_dirtree(tree, 1609574)) # 1609574 is the amount of space we need to free
     print(min(global_accum))
+
+
+def day8():
+    with open("input-8.txt", "r") as f:
+        lines = f.readlines()
+
+    lines = [l.strip() for l in lines]
+    size_x = size_y = len(lines[0])
+
+    def is_visible(lines, x, y, size_x, size_y):
+        tree_size = int(lines[y][x])
+
+        row = lines[y]
+        # check left
+        visible = True
+        for t in row[0:x]:
+            if int(t) >= tree_size:
+                visible = False
+        if visible:
+            return True
+        # check right
+        visible = True
+        for t in row[x+1:size_x]:
+            if int(t) >= tree_size:
+                visible = False
+        if visible:
+            return True
+        
+        col = []
+        for l in lines:
+            col.append(l[x])
+        # check up
+        visible = True
+        for t in col[0:y]:
+            if int(t) >= tree_size:
+                visible = False
+        if visible:
+            return True
+
+        # check down
+        visible = True
+        for t in col[y+1:]:
+            if int(t) >= tree_size:
+                visible = False
+        if visible:
+            return True
+
+        return visible
+
+    #part 1
+    visible = 0
+
+    for y in range(0,size_y):
+        for x in range(0,size_x):
+            if is_visible(lines, y, x, size_x, size_y):
+                visible += 1 
+    
+    print(visible)
+
+    #part 2
+
+    def view_score(lines, x, y, size_x, size_y):
+        tree_size = int(lines[y][x])
+
+        row = lines[y]
+        # check left
+        left = 0
+        for t in reversed(row[0:x]):
+            left += 1
+            if int(t) >= tree_size:
+                break
+
+        # check right
+        right = 0
+        for t in row[x+1:size_x]:
+            right += 1
+            if int(t) >= tree_size:
+                break
+        
+        col = []
+        for l in lines:
+            col.append(l[x])
+        # check up
+        up = 0
+        for t in reversed(col[0:y]):
+            up += 1
+            if int(t) >= tree_size:
+                break
+
+        # check down
+        down = 0
+        for t in col[y+1:size_y]:
+            down += 1
+            if int(t) >= tree_size:
+                break
+        
+        print(x, y, tree_size, up, down, left, right, up * down * left * right)
+        return up * down * left * right
+
+    #part 2
+    view_scores = []
+
+    for y in range(0,size_y):
+        for x in range(0,size_x):
+            view_scores.append(view_score(lines, y, x, size_x, size_y))
+    
+    print(max(view_scores))
+
+def day9():
+    with open("input9.txt","r") as f:
+        lines = f.readlines()
+    
+    lines = [l.strip().split() for l in lines]
+    steps = [[a, int(b)] for a, b in lines]
+
+    grid_size = 0
+    head = (grid_size,grid_size)
+    tail = (grid_size,grid_size)
+
+    def move_by(dir, point):
+        x, y = point
+        match(dir):
+            case "U":
+                a, b = (0,1)
+            case "D":
+                a, b = (0,-1)
+            case "L":
+                a, b = (-1,0)
+            case "R":
+                a, b = (1,0)
+
+        return (x+a, y+b)
+    
+    def reconnect_tail(head, tail, length=0): # length isn't needed, too lazy to remove
+        hx, hy = head
+        tx, ty = tail
+
+        # if touching diagonally, tail shouldn't move
+        if abs(hx - tx) == 1 + length and abs(hy - ty) == 1 + length:
+            return tail
+
+        # check diagonal
+        if (hx - tx) > 0 + length and (hy - ty) > 0 + length:
+                tx += 1
+                ty += 1
+                return (tx, ty)
+        if (hx - tx) < 0 - length and (hy - ty) < 0 - length:
+                tx -= 1
+                ty -= 1
+                return (tx, ty)
+        
+        if (hx - tx) > 0 + length and (hy - ty) < 0 - length:
+                tx += 1
+                ty -= 1
+                return (tx, ty)
+        if (hx - tx) < 0 - length and (hy - ty) > 0 + length:
+                tx -= 1
+                ty += 1
+                return (tx, ty)
+
+        # same x or y
+        if (hx - tx) > 1 + length or (hy - ty) > 1 + length:
+            if hx - tx > 1 + length:
+                return (tx+1, ty)
+            elif hy - ty > 1 + length:
+                return (tx, ty+1)
+
+        if (hx - tx) < -1 - length or (hy - ty) < -1 - length:
+            if hx - tx < -1 - length:
+                return (tx-1, ty)
+            elif hy - ty < -1 - length:
+                return (tx, ty-1)
+        
+        return tail
+
+    # part 1
+    tail_points = [tail]
+
+    for s in steps:
+        for i in range(0,s[1]):
+            head = move_by(s[0], head)
+            # check tail relative to head, move if needed
+            tail = reconnect_tail(head, tail)
+            tail_points.append(tail)
+    
+    print(len(set(tail_points)))
+
+    # part 2
+    
+    head = (grid_size,grid_size)
+    tail = (grid_size,grid_size)
+    rope_length = 10
+
+    rope_points = [head] * rope_length
+    tail_points = [tail]
+
+    for s in steps:
+        for i in range(0,s[1]):
+            for idx, r in enumerate(rope_points):
+                if idx == 0:
+                    print(rope_points[idx],r)
+                    print(s[0], r)
+                    rope_points[idx] = move_by(s[0], rope_points[idx])
+                    print(rope_points[idx])
+                # check tail relative to head, move if needed
+                else:
+                    rope_points[idx] = reconnect_tail(rope_points[idx-1], r)
+                    tail_points.append(rope_points[-1])
+    
+    print(len(set(tail_points)))
