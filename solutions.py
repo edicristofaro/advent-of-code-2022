@@ -3,8 +3,6 @@
 import copy
 import string
 
-from collections import OrderedDict
-
 def day1():
     infile = open("./input-1-1.txt", "r")
     lines = infile.readlines()
@@ -211,7 +209,6 @@ def day5():
         moves.append(tuple(int(i) for i in m.split() if i.isdigit()))
     
     stacks_part1 = copy.deepcopy(stacks)
-    # stacks_part2 = copy.deepcopy(stacks)
 
     for m in moves:
         accum = []
@@ -234,8 +231,6 @@ def day5():
         stacks[m[2]] += accum
         for i in range(0,m[0]):
             stacks[m[1]].pop()
-        # print(m, accum, accum[::-1])
-        # stacks[m[2]] += list(accum[::-1])
         
         for s in stacks:
              print(s)
@@ -287,9 +282,7 @@ def day7():
     tree = {"/": {}}
     current_path = ["/"]
 
-    i = 0
     for c in commands:
-        i += 1
         cmd = c.split()
         print(cmd)
         if cmd[0] == "$":
@@ -311,8 +304,6 @@ def day7():
             insert_into = current_path + [cmd[1]]
             print(f"{insert_into=}")
             nested_set(tree, insert_into, cmd[0])
-        #if i > 100:
-        #    break
 
     print(tree)
 
@@ -324,10 +315,8 @@ def day7():
         accum = 0
         for k, v in dirtree.items():
             if isinstance(v, dict):
-                # print(f"Nested dict item {k=} {v=}")
                 accum += size_of_dirtree(v, threshold)
             else:
-                # print(f"File item {k=} {v=}")
                 accum += int(v)
         
         # modify this for part 1 vs part 2
@@ -549,7 +538,7 @@ def day9():
                     print(s[0], r)
                     rope_points[idx] = move_by(s[0], rope_points[idx])
                     print(rope_points[idx])
-                # check tail relative to head, move if needed
+                # check current knot relative to prior knot, move if needed
                 else:
                     rope_points[idx] = reconnect_tail(rope_points[idx-1], r)
                     tail_points.append(rope_points[-1])
