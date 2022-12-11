@@ -1,7 +1,11 @@
 # python -c 'from solutions import *; day1()'
 
 import copy
+import functools
+import math
 import string
+
+from operator import mul
 
 def day1():
     infile = open("./input-1-1.txt", "r")
@@ -602,4 +606,78 @@ def day10():
             val = None
 
 
+def day11():
+    with open("input11t.txt","r") as f:
+        lines = f.readlines()
+
+    class Monkey():
+        def __init__(self, starting_items, operation, divisor, monkey_if_true, monkey_if_false) -> None:
+            self.items = starting_items
+            self.operation = operation
+            self.divisor = divisor
+            self.monkey_if_true = monkey_if_true
+            self.monkey_if_false = monkey_if_false
+
+            self.items_inspected = 0
+        
+        def __repr__(self):
+            return f"{self.items=} {self.operation=} {self.divisor=} {self.monkey_if_true=} {self.monkey_if_false=} {self.items_inspected=}"
+        
+        def _test_item(self, item):
+            self.divisor
+            if (item % self.divisor) == 0:
+                return self.monkey_if_true 
+            else:
+                return self.monkey_if_false
+        
+        def inspect_items(self, lcm):
+            throws = {self.monkey_if_true: [], self.monkey_if_false: []}
+            for i in range(0, len(self.items)):
+                old = self.items.pop()
+                self.items_inspected += 1
+                # for part 1, divide by 3 per the problem
+                # for part 2, use lcm of set of divisors - 96577 for divisor set, 9699690 for input set
+                new = eval(self.operation.split("=")[-1]) % lcm
+                throw_to_monkey = self._test_item(new)
+                throws[throw_to_monkey].append(new)
+            
+            return throws
+        
+        def receive(self, items):
+            for i in items:
+                self.items.append(i)
+    
+    # divisor data
+    monkeys_divisor = []
+    monkeys_divisor.append(Monkey([79, 98], "new = old * 19", 23, 2, 3))
+    monkeys_divisor.append(Monkey([54, 65, 75, 74], "new = old + 6", 19, 2, 0))
+    monkeys_divisor.append(Monkey([79, 60, 97], "new = old * old", 13, 1, 3))
+    monkeys_divisor.append(Monkey([74], "new = old + 3", 17, 0, 1))
+
+    # input data
+    monkeys = []
+    monkeys.append(Monkey([96, 60, 68, 91, 83, 57, 85], "new = old * 2", 17, 2, 5))
+    monkeys.append(Monkey([75, 78, 68, 81, 73, 99], "new = old + 3", 13, 7, 4))
+    monkeys.append(Monkey([69, 86, 67, 55, 96, 69, 94, 85], "new = old + 6", 19, 6, 5))
+    monkeys.append(Monkey([88, 75, 74, 98, 80], "new = old + 5", 7, 7, 1))
+    monkeys.append(Monkey([82], "new = old + 8", 11, 0, 2))
+    monkeys.append(Monkey([72, 92, 92], "new = old * 5", 3, 6, 3))
+    monkeys.append(Monkey([74, 61], "new = old * old", 2, 3, 1))
+    monkeys.append(Monkey([76, 86, 83, 55], "new = old + 4", 5, 4, 0))
+
+    divisors = [m.divisor for m in monkeys]
+    lcm = math.lcm(*divisors)
+    for i in range(0,10000):
+        for m in monkeys:
+            throws = m.inspect_items(lcm)
+            # print(throws)
+            for k, v in throws.items():
+                monkeys[k].receive(v)
+        
+    for m in monkeys:
+        print(f"{m=}")
+
+    # part 2; for part 1, step on the inspect_items method
+    items_inspected = sorted([m.items_inspected for m in monkeys])
+    print(f"Monkey Business: {functools.reduce(mul, items_inspected[-2:], 1)}")
 
