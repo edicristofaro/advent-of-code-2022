@@ -1,4 +1,4 @@
-# advent-of-code-2022
+# Advent of Code 2022
 https://adventofcode.com/
 
 This seemed like a great opportunity to write a little bit of code every day for a month, especially since I didn't finish last year! A lot of this code isn't pretty. In fact, it's possible that none of it is.
