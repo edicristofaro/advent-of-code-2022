@@ -636,7 +636,7 @@ def day11():
                 old = self.items.pop()
                 self.items_inspected += 1
                 # for part 1, divide by 3 per the problem
-                # for part 2, use lcm of set of divisors - 96577 for divisor set, 9699690 for input set
+                # for part 2, modulo by lcm of set of divisors - 96577 for divisor set, 9699690 for input set
                 new = eval(self.operation.split("=")[-1]) % lcm
                 throw_to_monkey = self._test_item(new)
                 throws[throw_to_monkey].append(new)
