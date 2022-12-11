@@ -636,7 +636,7 @@ def day11():
                 old = self.items.pop()
                 self.items_inspected += 1
                 # for part 1, divide by 3 per the problem
-                # for part 2, modulo by lcm of set of divisors - 96577 for divisor set, 9699690 for input set
+                # for part 2, solution: modulo by lcm of set of divisors - 96577 for divisor set, 9699690 for input set
                 new = eval(self.operation.split("=")[-1]) % lcm
                 throw_to_monkey = self._test_item(new)
                 throws[throw_to_monkey].append(new)
@@ -670,14 +670,13 @@ def day11():
     for i in range(0,10000):
         for m in monkeys:
             throws = m.inspect_items(lcm)
-            # print(throws)
             for k, v in throws.items():
                 monkeys[k].receive(v)
         
     for m in monkeys:
         print(f"{m=}")
 
-    # part 2; for part 1, step on the inspect_items method
+    # part 2; for part 1, step on the inspect_items method, see the comment above
     items_inspected = sorted([m.items_inspected for m in monkeys])
     print(f"Monkey Business: {functools.reduce(mul, items_inspected[-2:], 1)}")
 
